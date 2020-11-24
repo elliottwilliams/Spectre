@@ -37,18 +37,13 @@ class XcodeReporter: ContextReporter {
     // compatibility with 4.x.
     #if compiler(>=5.3) && os(macOS)
     let location = XCTSourceCodeLocation(filePath: failure.file, lineNumber: failure.line)
-    #if Xcode
-    // As of Xcode 12.0.1, XCTIssue is unavailable even though it is documented:
-    //   https://developer.apple.com/documentation/xctest/xctissue
-    // When building with `swift build`, it is available. Perhaps the xctest overlay behaves differently between the two.
-    let issue = XCTIssueReference(type: .assertionFailure, compactDescription: "\(name): \(failure.reason)", detailedDescription: nil, sourceCodeContext: .init(location: location), associatedError: nil, attachments: [])
-    #else
     let issue = XCTIssue(type: .assertionFailure, compactDescription: "\(name): \(failure.reason)", detailedDescription: nil, sourceCodeContext: .init(location: location), associatedError: nil, attachments: [])
-    #endif
     testCase.record(issue)
     #else
     testCase.recordFailure(withDescription: "\(name): \(failure.reason)", inFile: failure.file, atLine: failure.line, expected: false)
     #endif
+    #else
+    testCase.recordFailure(withDescription: "\(name): \(failure.reason)", inFile: failure.file, atLine: failure.line, expected: false)
     #endif
   }
 }
